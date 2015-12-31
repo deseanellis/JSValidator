@@ -1,0 +1,42 @@
+.errorInput {
+	border-color: #990000;
+}
+
+.successInput {
+	border-color: #5CB85C;
+}
+
+.errorLabel {
+	color: #990000;
+}
+
+.successLabel {
+	color: #5CB85C;
+}
+
+.inputWrapper {
+	position: relative;
+}
+
+.errorIcon {
+	color: #990000;
+}
+
+.successIcon {
+	color: #5CB85C;
+}
+
+.errorBlock {
+	color: #990000;
+}
+
+.successBlock {
+	color: #5CB85C;
+}
+
+.input-group .form-control:last-child {
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
