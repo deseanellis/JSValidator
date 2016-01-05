@@ -5,7 +5,8 @@ ELLISSOL Limited
 Start: December 1 2015
 
 Version 1: Complete - December 13 2015 [90 revisions]
-Version 1.1 - Use CSS Styles to show success and error messages. December 29th, 2015
+Version 1.1 - Use CSS Styles to show success and error messages. December 29 2015
+Version 1.2 - Added URL validation: January 2 2015
 */
 var errorState = 0; // Global Variable [errorState], used to determine if validation error has already been caught.
 
@@ -45,9 +46,9 @@ var validate = {
                 $(id).addClass("errorInput");
                 $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
                 if ($(id).parents().hasClass("input-group")) {
-                    $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                 } else {
-                    $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                 }
 
             } else {
@@ -102,9 +103,9 @@ var validate = {
                 $(id).addClass("errorInput");
                 $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
                 if ($(id).parents().hasClass("input-group")) {
-                    $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                 } else {
-                    $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                 }
             }
         }
@@ -118,13 +119,13 @@ var validate = {
                     $(id).addClass("successInput");
                     $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
                     if ($(id).parents().hasClass("input-group")) {
-                        $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                        $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                     } else {
-                        $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                        $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                     }
                     //$(formGroup).addClass("has-success has-feedback"); //If true, add bootstrap classes
                     //$(messageContainer).html(successMessage); // Display error message
-                    //$(id).after("<i style=\"right:30px;\" class=\"glyphicon glyphicon-ok form-control-feedback\"></i>");
+                    //$(id).after("<i style=\"right:30px;\" class=\"fa fa-check form-control-feedback\"></i>");
                 }
 
             } //End: Error checking
@@ -133,7 +134,74 @@ var validate = {
         return errorState; // Return errorState to be used in function
     }, // End: email function
 
-    //Start: general function: see documentation
+    // Start: url function: see documentation
+    url: function(id, options, placeholder) {
+
+        //Start: Declaration of [options] Variables
+        var successMessage = options["successMessage"]; // Message to display if no errors found.
+        var errorMessage = options["errorMessage"]; // Message to display if error found.
+        //End: Declaration of [options] Variables
+
+        // Before error checking begins, remove all errors states, error message containers and error styles
+        errorState = 0;
+        $.fn.prepMsg(id);
+
+        //Start: Placeholder substitution
+        if (!!placeholder || placeholder === '') { // check if placeholder parameter has been passed.
+            var custom = placeholder;
+            errorMessage = $.fn.addPlaceholder(errorMessage, custom); //Replace [placeholder] in message with parameter passed.
+            successMessage = $.fn.addPlaceholder(successMessage, custom); //Replace [placeholder] in message with parameter passed.
+        }
+        //End: Placeholder substitution
+
+        //Start: Validation - URL
+
+        // Start: Error checking
+        var content = $(id).val(); // Store input field value.
+        if (content == "") { // Don't perform e-mail address validation if field is null
+            return;
+        }
+        
+		var regex = /((https|http|ftp)?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/i;
+        regex = regex.test(content); // Validate content against RXO
+
+        if (!regex) { // Determine if url is not valid and no errors have been caught thus far
+
+            if (errorState != 1) {
+                errorState = 1; //Set error state as true
+                $.fn.prepMsg(id);
+                $(id).addClass("errorInput");
+                $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
+                if ($(id).parents().hasClass("input-group")) {
+                    $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                } else {
+                    $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                }
+            }
+        }
+
+        if (regex == true) { // Determine if url is valid
+
+            if (errorState != 1) {
+                errorState = 0; //Set error state as false
+                $.fn.prepMsg(id); //Remove all message states, prep for new message
+                if (successMessage != "") { // If successMessage defined in validation function options
+                    $(id).addClass("successInput");
+                    $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
+                    if ($(id).parents().hasClass("input-group")) {
+                        $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
+                    } else {
+                        $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
+                    }
+                }
+
+            } //End: Error checking
+        } //End: Validation - URL
+        $.fn.stateCheck(errorState, "#frm-err");
+        return errorState; // Return errorState to be used in function
+    }, // End: url function
+	
+	//Start: general function: see documentation
     general: function(id, options, placeholder) {
 
         //Start: Declaration of [options] Variables
@@ -180,9 +248,9 @@ var validate = {
                     $(id).addClass("errorInput");
                     $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
                     if ($(id).parents().hasClass("input-group")) {
-                        $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                        $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                     } else {
-                        $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                        $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                     }
 
                 }
@@ -194,9 +262,9 @@ var validate = {
                         $(id).addClass("successInput");
                         $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
                         if ($(id).parents().hasClass("input-group")) {
-                            $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                            $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                         } else {
-                            $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                            $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                         }
                     }
                 }
@@ -227,9 +295,9 @@ var validate = {
                     $(id).addClass("errorInput");
                     $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
                     if ($(id).parents().hasClass("input-group")) {
-                        $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                        $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                     } else {
-                        $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                        $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                     }
                 }
             } else {
@@ -240,9 +308,9 @@ var validate = {
                         $(id).addClass("successInput");
                         $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
                         if ($(id).parents().hasClass("input-group")) {
-                            $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                            $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                         } else {
-                            $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                            $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                         }
                     }
                 }
@@ -302,9 +370,9 @@ var validate = {
                         $(id).addClass("errorInput");
                         $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
                         if ($(id).parents().hasClass("input-group")) {
-                            $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                            $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                         } else {
-                            $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                            $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                         }
                     }
                 } else {
@@ -315,9 +383,9 @@ var validate = {
                             $(id).addClass("successInput");
                             $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
                             if ($(id).parents().hasClass("input-group")) {
-                                $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                                $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                             } else {
-                                $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                                $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                             }
                         }
                     }
@@ -331,9 +399,9 @@ var validate = {
                         $(id).addClass("errorInput");
                         $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
                         if ($(id).parents().hasClass("input-group")) {
-                            $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                            $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                         } else {
-                            $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                            $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                         }
                     }
 
@@ -345,9 +413,9 @@ var validate = {
                             $(id).addClass("successInput");
                             $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
                             if ($(id).parents().hasClass("input-group")) {
-                                $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                                $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                             } else {
-                                $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                                $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                             }
                         }
                     }
@@ -361,9 +429,9 @@ var validate = {
                         $(id).addClass("errorInput");
                         $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
                         if ($(id).parents().hasClass("input-group")) {
-                            $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                            $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                         } else {
-                            $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-warning-sign errorIcon\"></span>" + " " + errorMessage + "</span>");
+                            $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
                         }
                     }
                 } else {
@@ -374,9 +442,9 @@ var validate = {
                             $(id).addClass("successInput");
                             $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
                             if ($(id).parents().hasClass("input-group")) {
-                                $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                                $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                             } else {
-                                $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"glyphicon glyphicon-ok successIcon\"></span>" + " " + successMessage + "</span>");
+                                $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
                             }
                         }
                     }
@@ -410,7 +478,7 @@ $.fn.addPlaceholder = function(errorMessage, placeholder) {
 
 $.fn.stateCheck = function(currentState, container) {
     if (currentState == 1) {
-        $(container).html("<span class=\"glyphicon glyphicon-exclamation-sign\"></span> There are errors with your submission, please review highlighted field(s) below.");
+        $(container).html("<span class=\"fa fa-exclamation-circle\"></span> There are errors with your submission, please review highlighted field(s) below.");
         $(container).addClass("alert alert-danger");
     } else {
         $(container).html("");
