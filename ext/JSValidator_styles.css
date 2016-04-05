@@ -1,39 +1,49 @@
 .errorInput {
+        /* The border color of the HTML element input when the validation returns an error*/
 	border-color: #990000;
 }
 
 .successInput {
+        /* The border color of the HTML element input when the validation returns a success*/
 	border-color: #5CB85C;
 }
 
 .errorLabel {
+        /* The text color of input's label for aa error message */
 	color: #990000;
 }
 
 .successLabel {
+        /* The text color of input's label for a success message */
 	color: #5CB85C;
 }
 
 .inputWrapper {
+        /* The positioning attribute of the input element. DO NOT CHANGE */
 	position: relative;
 }
 
 .errorIcon {
+        /* The text color of the HTML span tag inner text created to display the input's error icon */
 	color: #990000;
 }
 
 .successIcon {
+        /* The text color of the HTML span tag inner text created to display the input's success icon */
 	color: #5CB85C;
 }
 
 .errorBlock {
+        /* The text color of the HTML span tag inner text created to display the input's error message */
 	color: #990000;
 }
 
 .successBlock {
+        /* The text color of the HTML span tag inner text created to display the input's success message */
 	color: #5CB85C;
 }
 
+/* Removes 2px of border radius from default bootstrap CSS */
 .input-group .form-control:last-child {
 	border-top-right-radius: 2px;
 	border-bottom-right-radius: 2px;
