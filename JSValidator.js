@@ -6,7 +6,8 @@ Start: December 1 2015
 
 Version 1: Complete - December 13 2015 [90 revisions]
 Version 1.1 - Use CSS Styles to show success and error messages. December 29 2015
-Version 1.2 - Added URL validation: January 2 2015
+Version 1.2 - Added URL validation: January 2 2016
+Version 1.3 - Minor bug fixes: April 5 2016
 */
 var errorState = 0; // Global Variable [errorState], used to determine if validation error has already been caught.
 
@@ -162,7 +163,7 @@ var validate = {
             return;
         }
         
-		var regex = /((https|http|ftp)?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/i;
+        var regex = /((https|http|ftp)?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/i;
         regex = regex.test(content); // Validate content against RXO
 
         if (!regex) { // Determine if url is not valid and no errors have been caught thus far
@@ -201,7 +202,132 @@ var validate = {
         return errorState; // Return errorState to be used in function
     }, // End: url function
 	
-	//Start: general function: see documentation
+    //Start: date function: see documentation
+    date: function(id, options, placeholder) {
+        //alert("hi: 10");
+        //Start: Declaration of [options] Variables
+        var successMessage = options["successMessage"]; // Message to display if no errors found.
+        var errorMessage = options["errorMessage"]; // Message to display if error found.
+        var dateFormat = options["dateFormat"]; //Format of date to validate.
+        //End: Declaration of [options] Variables
+
+        // Before error checking begins, remove all errors states, error message containers and error styles
+        errorState = 0;
+        $.fn.prepMsg(id);
+
+        //Start: Placeholder substitution
+        if (!!placeholder || placeholder === '') { // check if placeholder parameter has been passed.
+            var custom = placeholder;
+            errorMessage = $.fn.addPlaceholder(errorMessage, custom); //Replace [placeholder] in message with parameter passed.
+            successMessage = $.fn.addPlaceholder(successMessage, custom); //Replace [placeholder] in message with parameter passed.
+        }
+        //End: Placeholder substitution
+
+        //Start: Validation - Date
+
+        // Start: Error checking
+        var content = $(id).val().trim(); // Store input field value.
+        if (content == "") { // Don't perform e-mail address validation if field is null
+            return;
+        }
+
+        //Get Date Values as Integers
+        if (dateFormat == "mm/dd/yyyy") {
+            if (content.length == 10) {
+                var year = parseInt(content.substring(6));
+                var month = parseInt(content.substring(0, 2));
+                var day = parseInt(content.substring(3, 5));
+            } else {
+                //Wrong field size
+                if (errorState != 1) {
+                    errorState = 1; //Set error state as true
+                    $.fn.prepMsg(id);
+                    $(id).addClass("errorInput");
+                    $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
+                    if ($(id).parents().hasClass("input-group")) {
+                        $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    } else {
+                        $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    }
+                }
+            }
+        }
+        
+
+        //Store Month Day Values in array
+        var monthly_days = [
+            31,28,31,30,31,30,31,31,30,31,30,31
+        ];
+
+        //Set February to 29 if leap year
+        monthly_days[1] = (year % 4 == 0) ? 29 : 28;
+
+        //Check if values stored are numbers - NaN(not a number)
+
+        if (isNaN(year) || isNaN(month) || isNaN(day)){
+            if (errorState != 1) {
+                errorState = 1; //Set error state as true
+                $.fn.prepMsg(id);
+                $(id).addClass("errorInput");
+                $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
+                if ($(id).parents().hasClass("input-group")) {
+                    $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                } else {
+                    $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                }
+            }
+        }
+
+        //Validate Date: Check if values are within range
+        if ( (year < 0 || year > 10000) || (month < 0 || month > 12) || (day < 0 || day > 31) ) {
+            // If not, display error
+            if (errorState != 1) {
+                errorState = 1; //Set error state as true
+                $.fn.prepMsg(id);
+                $(id).addClass("errorInput");
+                $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
+                if ($(id).parents().hasClass("input-group")) {
+                    $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                } else {
+                    $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                }
+            }
+        } else // Second Phase Validation: Check if days are within range based on month
+            if(day > monthly_days[month-1]){
+                //If not, display error
+                if (errorState != 1) {
+                    errorState = 1; //Set error state as true
+                    $.fn.prepMsg(id);
+                    $(id).addClass("errorInput");
+                    $("label[for=" + $.fn.labelName(id) + "]").addClass("errorLabel");
+                    if ($(id).parents().hasClass("input-group")) {
+                        $(id).parent().parent().after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    } else {
+                        $(id).after("<span class=\"returnMsg errorBlock\"><span id=\"returnIcon\" class=\"fa fa-close errorIcon\"></span>" + " " + errorMessage + "</span>");
+                    }
+                }
+            } else {
+                //Sucess: The date is valid
+                if (errorState != 1) {
+                    errorState = 0; //Set error state as false
+                    $.fn.prepMsg(id); //Remove all message states, prep for new message
+                    if (successMessage != "") { // If successMessage defined in validation function options
+                        $(id).addClass("successInput");
+                        $("label[for=" + $.fn.labelName(id) + "]").addClass("successLabel");
+                        if ($(id).parents().hasClass("input-group")) {
+                            $(id).parent().parent().after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
+                        } else {
+                            $(id).after("<span class=\"returnMsg successBlock\"><span id=\"returnIcon\" class=\"fa fa-check successIcon\"></span>" + " " + successMessage + "</span>");
+                        }
+                    }
+
+                } //End: Error checking
+            }
+        $.fn.stateCheck(errorState, "#frm-err");
+        return errorState; // Return errorState to be used in function
+    }, //End: date function: see documentation
+
+    //Start: general function: see documentation
     general: function(id, options, placeholder) {
 
         //Start: Declaration of [options] Variables
@@ -455,9 +581,10 @@ var validate = {
         $.fn.stateCheck(errorState, "#frm-err");
         return errorState;
     }, //End: Characters Validation
-    version: "Version #1.1 - December 30th 2015"
+    version: "Version #1.3 - April 5 2016" //Version Information
 };
 
+// Start: Function Listing
 $.fn.prepMsg = function(fieldId) {
     $(fieldId).removeClass("errorInput successInput");
     $("label[for=" + $.fn.labelName(fieldId) + "]").removeClass("errorLabel successLabel");
@@ -489,3 +616,4 @@ $.fn.stateCheck = function(currentState, container) {
 $.fn.labelName = function(fieldId) {
     return fieldId.replace("#", "");
 }
+// End: Function Listing
